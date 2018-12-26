@@ -17,7 +17,7 @@ namespace WebAppIdentity.Models
         public string Gender { get; set; }
 
         [Required]
-        public DateTime Birthday { get; set; }
+        public DateTime BirthDate { get; set; }
     }
 
     //public enum GenderEnum

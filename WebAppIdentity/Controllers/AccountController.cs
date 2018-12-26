@@ -35,9 +35,12 @@ namespace WebAppIdentity.Controllers
         {
             User user = new User()
             {
+                UserName = model.FullName,
+                FullName = model.FullName,
                 Email = model.Email,
-                UserName = model.Email,
-
+                EmailConfirmed = false,
+                Gender = model.Gender,
+                BirthDate = model.BirthDate
             };
 
             IdentityResult res =await userManager.CreateAsync(user, model.Password);
