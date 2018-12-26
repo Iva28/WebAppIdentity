@@ -1,0 +1,9 @@
+﻿@{
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h4>Index</h4>
+
+<p>Hello, @ViewData["UserName"]</p>
+<a href="@Url.Action("SignOut", "Account")">Sign Out</a>
+
