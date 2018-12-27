@@ -12,6 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using WebAppIdentity.EF;
 using WebAppIdentity.Models;
 
+
 namespace WebAppIdentity
 {
     public class Startup
@@ -28,7 +29,15 @@ namespace WebAppIdentity
             services.AddDbContext<MyDbContext>(opts =>
                 opts.UseSqlServer(Configuration.GetConnectionString("DefaultConnection")));
 
-            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<MyDbContext>(); //перечисляем типы данных для таблиц в бд
+            services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<MyDbContext>().AddDefaultTokenProviders();
+
+
+            //services.Configure<ConfirmEmailDataProtectionTokenProviderOptions>(options =>
+            //{
+            //    options.TokenLifespan = TimeSpan.FromMinutes(1);
+            //});
+
+
 
             services.Configure<IdentityOptions>(options =>
             {
@@ -39,9 +48,13 @@ namespace WebAppIdentity
 
                 options.Password.RequiredLength = 5;
                 options.Password.RequiredUniqueChars = 4;
+   
             });
 
-
+            services.Configure<IdentityOptions>(o =>
+            {
+                o.SignIn.RequireConfirmedEmail = true;
+            });
 
             services.ConfigureApplicationCookie(opts => {
                 opts.LoginPath = "/Account/SignUp";

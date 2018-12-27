@@ -3,6 +3,8 @@ using Microsoft.AspNetCore.Mvc;
 using WebAppIdentity.Models;
 using WebAppIdentity.ViewModels;
 using System.Threading.Tasks;
+using System;
+using System.Web;
 
 namespace WebAppIdentity.Controllers
 {
@@ -38,16 +40,22 @@ namespace WebAppIdentity.Controllers
                 UserName = model.FullName,
                 FullName = model.FullName,
                 Email = model.Email,
-                EmailConfirmed = false,
                 Gender = model.Gender,
                 BirthDate = model.BirthDate
             };
+
 
             IdentityResult res =await userManager.CreateAsync(user, model.Password);
             if (res.Succeeded)
             {
                 await signInManager.SignInAsync(user, true); //куки будут сохраняться при закрытии браузера
-                return RedirectToAction("Index");
+
+                var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
+                var tokenVerificationUrl = Url.Action(
+                    "VerifyEmail", "Account", new { user.Id, emailConfirmationToken },
+                    Request.Scheme);
+
+                return View("VerifyEmail", tokenVerificationUrl);   
             }
             else
             {
@@ -58,6 +66,26 @@ namespace WebAppIdentity.Controllers
                 return View(model);
             }
         }
+
+        public async Task<IActionResult> VerifyEmail(string id, string emailConfirmationToken)
+        {
+            var user = await userManager.FindByIdAsync(id);
+            if (user == null)
+                throw new InvalidOperationException();
+
+
+            var emailConfirmationResult = await userManager.ConfirmEmailAsync(user, emailConfirmationToken);
+            if (!emailConfirmationResult.Succeeded)
+            {
+                return RedirectToAction("Index", "Home");
+            }
+
+            return RedirectToAction("Index");
+
+
+            //http://localhost:58228/
+        }
+
 
 
         [HttpGet]
