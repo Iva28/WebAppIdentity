@@ -4,7 +4,6 @@ using WebAppIdentity.Models;
 using WebAppIdentity.ViewModels;
 using System.Threading.Tasks;
 using System;
-using System.Web;
 
 namespace WebAppIdentity.Controllers
 {
@@ -12,6 +11,7 @@ namespace WebAppIdentity.Controllers
     {
         private UserManager<User> userManager;
         private SignInManager<User> signInManager;
+
 
         public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
@@ -22,8 +22,14 @@ namespace WebAppIdentity.Controllers
         [HttpGet]
         public IActionResult Index()
         {
-            ViewData["UserName"] = User.Identity.Name;
             return View();
+        }
+
+
+        [HttpGet]
+        public IActionResult SignIn()
+        {
+            return View(new SignInViewModel());
         }
 
         [HttpGet]
@@ -37,7 +43,7 @@ namespace WebAppIdentity.Controllers
         {
             User user = new User()
             {
-                UserName = model.FullName,
+                UserName = model.Email,
                 FullName = model.FullName,
                 Email = model.Email,
                 Gender = model.Gender,
@@ -45,17 +51,17 @@ namespace WebAppIdentity.Controllers
             };
 
 
-            IdentityResult res =await userManager.CreateAsync(user, model.Password);
+            IdentityResult res = await userManager.CreateAsync(user, model.Password);
             if (res.Succeeded)
             {
-                await signInManager.SignInAsync(user, true); //куки будут сохраняться при закрытии браузера
+                // await signInManager.SignInAsync(user, true); //куки будут сохраняться при закрытии браузера
 
                 var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 var tokenVerificationUrl = Url.Action(
-                    "VerifyEmail", "Account", new { user.Id, emailConfirmationToken },
-                    Request.Scheme);
+                    "VerifyEmail", "Account", new { userId = user.Id, token = emailConfirmationToken },
+                    protocol: HttpContext.Request.Scheme);
 
-                return View("VerifyEmail", tokenVerificationUrl);   
+                return View("VerifyEmail", tokenVerificationUrl);
             }
             else
             {
@@ -67,26 +73,109 @@ namespace WebAppIdentity.Controllers
             }
         }
 
-        public async Task<IActionResult> VerifyEmail(string id, string emailConfirmationToken)
+        public async Task<IActionResult> VerifyEmail(string userId, string token)
         {
-            var user = await userManager.FindByIdAsync(id);
+            var user = await userManager.FindByIdAsync(userId);
             if (user == null)
                 throw new InvalidOperationException();
 
-
-            var emailConfirmationResult = await userManager.ConfirmEmailAsync(user, emailConfirmationToken);
+            var emailConfirmationResult = await userManager.ConfirmEmailAsync(user, token);
             if (!emailConfirmationResult.Succeeded)
-            {
                 return RedirectToAction("Index", "Home");
+            return RedirectToAction("SignIn");
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> SignIn(SignInViewModel model)
+        {
+            var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
+
+            if (!result.Succeeded) {
+                ModelState.AddModelError("SignInError", "Invalid login or password.Please try again.");
+                return View();
             }
-
-            return RedirectToAction("Index");
-
-
-            //http://localhost:58228/
+            var user = await userManager.FindByNameAsync(model.Email);
+            return View("Index", user);
         }
 
 
+        [HttpGet]
+        public IActionResult ForgotPassword()
+        {
+            return View();
+        }
+
+        
+        [HttpGet]
+        public async Task<IActionResult> Edit(string id)
+        {
+            User user = await userManager.FindByIdAsync(id);
+            if (user == null)
+                return NotFound();
+            return View(new EditUserViewModel { Id = user.Id, FullName = user.FullName ,BirthDate = user.BirthDate, Gender = user.Gender });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> Edit(EditUserViewModel model)
+        {
+            User user = await userManager.FindByIdAsync(model.Id);
+            if (user != null) {
+                user.FullName = model.FullName;
+                user.BirthDate = model.BirthDate;
+                user.Gender = model.Gender;
+
+                var result = await userManager.UpdateAsync(user);
+                if (result.Succeeded) {
+                    return View("Index", user);
+                }
+                else {
+                    return View(model);
+                }
+            }
+            return View(model);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
+        {
+            var user = await userManager.FindByNameAsync(model.Email);
+            if (user == null || !(await userManager.IsEmailConfirmedAsync(user))) {
+                ModelState.AddModelError("ForgotPasswordError", "Error!");
+                return View();
+            }
+
+            var code = await userManager.GeneratePasswordResetTokenAsync(user);
+            var callbackUrl = Url.Action("ResetPassword", "Account", new { user.Email, code },
+                protocol: HttpContext.Request.Scheme);
+
+            return View("ForgotPasswordConfirmation", callbackUrl);
+        }
+
+        [HttpGet]
+        public IActionResult ResetPassword(string email, string code = null)
+        {
+            return code == null ? View("ForgotPassword") : View(new ResetPasswordViewModel() { Email = email});
+        }
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> ResetPassword(ResetPasswordViewModel model)
+        {
+            var user = await userManager.FindByNameAsync(model.Email);
+            var result = await userManager.ResetPasswordAsync(user, model.Code, model.Password);
+            if (result.Succeeded)
+            {
+                ViewData["ResetPassword"] = true;
+                return View("SignIn");
+            }
+            foreach (var error in result.Errors)
+            {
+                ModelState.AddModelError(string.Empty, error.Description);
+            }
+            return View();
+        }
 
         [HttpGet]
         public async Task<IActionResult> SignOut()

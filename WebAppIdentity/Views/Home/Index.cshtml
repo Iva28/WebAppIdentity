@@ -6,4 +6,7 @@
 
 <h2>Home Index Page</h2>
 
-<a asp-controller="Account" asp-action="SignUp">Sign Up</a>
+<div class="container">
+    <input type="button" value="Sign In" onclick="location.href='@Url.Action("SignIn", "Account")'" />
+    <input type="button" value="Sign Up" onclick="location.href='@Url.Action("SignUp", "Account")'" />
+</div>

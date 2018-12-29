@@ -31,14 +31,6 @@ namespace WebAppIdentity
 
             services.AddIdentity<User, IdentityRole>().AddEntityFrameworkStores<MyDbContext>().AddDefaultTokenProviders();
 
-
-            //services.Configure<ConfirmEmailDataProtectionTokenProviderOptions>(options =>
-            //{
-            //    options.TokenLifespan = TimeSpan.FromMinutes(1);
-            //});
-
-
-
             services.Configure<IdentityOptions>(options =>
             {
                 options.Password.RequireDigit = false;

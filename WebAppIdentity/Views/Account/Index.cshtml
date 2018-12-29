@@ -1,9 +1,18 @@
-﻿@{
+﻿@model User
+
+@{
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<h4>Index</h4>
-
-<p>Hello, @ViewData["UserName"]</p>
-<a href="@Url.Action("SignOut", "Account")">Sign Out</a>
-
+<div class="container">
+    @if (@Model != null)
+    {
+        <h3><i class="fa fa-user-circle-o"></i> Information about Account</h3>
+        <br />
+        <p>Name: @Model.FullName</p>
+        <p>BirthDate: @Model.BirthDate.ToString("d")</p>
+        <p>Gender: @Model.Gender</p>
+    }
+    <input type="button" value="Edit" onclick="location.href='@Url.Action("Edit", "Account", new { Model.Id })'" />
+    <input type="button" value="Sign Out" onclick="location.href='@Url.Action("SignOut", "Account")'" />
+</div>

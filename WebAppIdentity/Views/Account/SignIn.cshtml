@@ -1,0 +1,41 @@
+﻿@model SignInViewModel
+
+@{
+    ViewData["Title"] = "SignIn";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">  
+    @if (ViewData["ResetPassword"] != null) {
+        if ((bool)ViewData["ResetPassword"]) {
+    <p>
+        <i class="fa fa-check-circle-o"></i>
+        Your password has been reset.
+    </p>
+        }
+    }
+    <form method="post" asp-controller="Account" asp-action="SignIn">
+        <div class="row">
+            <h3>Sign In</h3>
+            <span asp-validation-for="Email"></span>
+            <div class="input-group input-group-icon">
+                <input asp-for="Email" placeholder="Email" />
+                <div class="input-icon"><i class="fa fa-envelope"></i></div>
+            </div>
+            <span asp-validation-for="Password"></span>
+            <div class="input-group input-group-icon">
+                <input asp-for="Password" placeholder="Password" />
+                <div class="input-icon"><i class="fa fa-key"></i></div>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                @Html.ValidationMessage("SignInError")
+                <input type="submit" value="Sign In" />
+                <input type="button" value="Forgot your password?" onclick="location.href='@Url.Action("ForgotPassword", "Account")'" />
+                @*@Html.ActionLink("Forgot your password?", "ForgotPassword", "Account")*@
+            </div>
+        </div>
+    </form>
+</div>
+
