@@ -4,6 +4,7 @@ using WebAppIdentity.Models;
 using WebAppIdentity.ViewModels;
 using System.Threading.Tasks;
 using System;
+using System.Linq;
 
 namespace WebAppIdentity.Controllers
 {
@@ -11,20 +12,22 @@ namespace WebAppIdentity.Controllers
     {
         private UserManager<User> userManager;
         private SignInManager<User> signInManager;
+        private RoleManager<IdentityRole> roleManager;
 
-
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
+            this.roleManager = roleManager;
         }
 
-        [HttpGet]
-        public IActionResult Index()
+        public async Task<IActionResult> Index(string email)
         {
-            return View();
+            var user = await userManager.FindByNameAsync(email);
+            if (user != null)
+                return View(user);
+            return RedirectToAction("Index", "Home");
         }
-
 
         [HttpGet]
         public IActionResult SignIn()
@@ -52,10 +55,7 @@ namespace WebAppIdentity.Controllers
 
 
             IdentityResult res = await userManager.CreateAsync(user, model.Password);
-            if (res.Succeeded)
-            {
-                // await signInManager.SignInAsync(user, true); //куки будут сохраняться при закрытии браузера
-
+            if (res.Succeeded) {
                 var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 var tokenVerificationUrl = Url.Action(
                     "VerifyEmail", "Account", new { userId = user.Id, token = emailConfirmationToken },
@@ -63,10 +63,8 @@ namespace WebAppIdentity.Controllers
 
                 return View("VerifyEmail", tokenVerificationUrl);
             }
-            else
-            {
-                foreach (var er in res.Errors)
-                {
+            else {
+                foreach (var er in res.Errors) {
                     ModelState.AddModelError("Email", er.Description);
                 }
                 return View(model);
@@ -94,8 +92,7 @@ namespace WebAppIdentity.Controllers
                 ModelState.AddModelError("SignInError", "Invalid login or password.Please try again.");
                 return View();
             }
-            var user = await userManager.FindByNameAsync(model.Email);
-            return View("Index", user);
+            return RedirectToAction("Index", "Account", new { model.Email });
         }
 
 
@@ -125,12 +122,41 @@ namespace WebAppIdentity.Controllers
                 user.Gender = model.Gender;
 
                 var result = await userManager.UpdateAsync(user);
-                if (result.Succeeded) {
-                    return View("Index", user);
+                if (result.Succeeded)
+                {
+                    return RedirectToAction("Index", "Account", new { user.Email });
                 }
                 else {
                     return View(model);
                 }
+            }
+            return View(model);
+        }
+
+        [HttpGet]
+        public IActionResult ChangePassword(string id)
+        {
+            return View(new ChangePasswordViewModel { Id = id});
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
+        {
+            User user = await userManager.FindByIdAsync(model.Id);
+            if (user != null) {
+                IdentityResult result = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
+                if (result.Succeeded) {
+                    return RedirectToAction("Index", "Account", new { user.Email });
+
+                }
+                else {
+                    foreach (var error in result.Errors) {
+                        ModelState.AddModelError("ChangePasswordError", error.Description);
+                    }
+                }
+            }
+            else {
+                ModelState.AddModelError(string.Empty, "Not Found");
             }
             return View(model);
         }
@@ -165,13 +191,11 @@ namespace WebAppIdentity.Controllers
         {
             var user = await userManager.FindByNameAsync(model.Email);
             var result = await userManager.ResetPasswordAsync(user, model.Code, model.Password);
-            if (result.Succeeded)
-            {
+            if (result.Succeeded) {
                 ViewData["ResetPassword"] = true;
                 return View("SignIn");
             }
-            foreach (var error in result.Errors)
-            {
+            foreach (var error in result.Errors) {
                 ModelState.AddModelError(string.Empty, error.Description);
             }
             return View();

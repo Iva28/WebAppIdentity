@@ -2,22 +2,20 @@
 
 namespace WebAppIdentity.ViewModels
 {
-    public class ResetPasswordViewModel
+    public class ChangePasswordViewModel
     {
-        [Required]
-        [EmailAddress]
+        public string Id { get; set; }
+
         public string Email { get; set; }
 
         [Required(ErrorMessage = "Password is required.")]
         [DataType(DataType.Password)]
         [MinLength(5, ErrorMessage = "The password must be at least 5 characters long and contain 4 unique characters.")]
-        public string Password { get; set; }
+        public string OldPassword { get; set; }
 
-        [Required(ErrorMessage = "Confirm Password is required.")]
+        [Required(ErrorMessage = "Password is required.")]
         [DataType(DataType.Password)]
-        [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
-        public string ConfirmPassword { get; set; }
-
-        public string Code { get; set; }
+        [MinLength(5, ErrorMessage = "The password must be at least 5 characters long and contain 4 unique characters.")]
+        public string NewPassword { get; set; }
     }
 }

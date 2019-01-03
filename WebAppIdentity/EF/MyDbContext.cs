@@ -10,11 +10,7 @@ namespace WebAppIdentity.EF
 {
     public class MyDbContext : IdentityDbContext<User>
     {
-        // public DbSet<Post> Posts { get; set; }  и т.д. (таблицы для бизнес-логики)
-
-        public MyDbContext(DbContextOptions<MyDbContext> opts) : base (opts)
-        {
-        }
+        public MyDbContext(DbContextOptions<MyDbContext> opts) : base (opts) { }
 
         //protected override void OnModelCreating(ModelBuilder modelBuilder)
         //{
