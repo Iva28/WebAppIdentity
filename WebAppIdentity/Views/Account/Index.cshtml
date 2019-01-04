@@ -15,5 +15,10 @@
     }
     <input type="button" value="Edit" onclick="location.href='@Url.Action("Edit", "Account", new { Model.Id })'" />
     <input type="button" value="Change Password" onclick="location.href='@Url.Action("ChangePassword", "Account", new { Model.Id })'" />
+    @if (ViewBag.Admin != null)  {
+        @if (ViewBag.Admin) {
+            <input type="button" value="Roles" onclick="location.href='@Url.Action("Index", "Roles")'" />
+        }
+    }
     <input type="button" value="Sign Out" onclick="location.href='@Url.Action("SignOut", "Account")'" />
 </div>

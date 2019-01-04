@@ -1,0 +1,19 @@
+﻿@model string
+
+@{
+    ViewData["Title"] = "Create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container">
+    <h3>Create</h3>
+    <form asp-action="Create" method="post">
+        <div style="position:relative;" >
+            <label for="name">Role</label>
+            <p style="position:absolute; right:0; top:0; margin:0;">@Html.ValidationMessage("RoleError")</p>
+            <input name="name"/>
+        </div>
+        <input type="submit" value="Add"/>
+    </form>
+</div>
+

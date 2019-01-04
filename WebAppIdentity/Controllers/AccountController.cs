@@ -5,6 +5,8 @@ using WebAppIdentity.ViewModels;
 using System.Threading.Tasks;
 using System;
 using System.Linq;
+using WebAppIdentity.EF;
+using Microsoft.AspNetCore.Authorization;
 
 namespace WebAppIdentity.Controllers
 {
@@ -12,34 +14,15 @@ namespace WebAppIdentity.Controllers
     {
         private UserManager<User> userManager;
         private SignInManager<User> signInManager;
-        private RoleManager<IdentityRole> roleManager;
 
-        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager, RoleManager<IdentityRole> roleManager)
+        public AccountController(UserManager<User> userManager, SignInManager<User> signInManager)
         {
             this.userManager = userManager;
             this.signInManager = signInManager;
-            this.roleManager = roleManager;
-        }
-
-        public async Task<IActionResult> Index(string email)
-        {
-            var user = await userManager.FindByNameAsync(email);
-            if (user != null)
-                return View(user);
-            return RedirectToAction("Index", "Home");
         }
 
         [HttpGet]
-        public IActionResult SignIn()
-        {
-            return View(new SignInViewModel());
-        }
-
-        [HttpGet]
-        public IActionResult SignUp()
-        {
-            return View(new SignUpViewModel());
-        }
+        public IActionResult SignUp() => View(new SignUpViewModel());
 
         [HttpPost]
         public async Task<IActionResult> SignUp(SignUpViewModel model)
@@ -56,6 +39,7 @@ namespace WebAppIdentity.Controllers
 
             IdentityResult res = await userManager.CreateAsync(user, model.Password);
             if (res.Succeeded) {
+                var result = await userManager.AddToRoleAsync(user, "user");
                 var emailConfirmationToken = await userManager.GenerateEmailConfirmationTokenAsync(user);
                 var tokenVerificationUrl = Url.Action(
                     "VerifyEmail", "Account", new { userId = user.Id, token = emailConfirmationToken },
@@ -83,9 +67,14 @@ namespace WebAppIdentity.Controllers
             return RedirectToAction("SignIn");
         }
 
+        [HttpGet]
+        public IActionResult SignIn() => View(new SignInViewModel());
+
         [HttpPost]
         public async Task<IActionResult> SignIn(SignInViewModel model)
         {
+            var user = await userManager.FindByNameAsync(model.Email);
+
             var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
 
             if (!result.Succeeded) {
@@ -96,13 +85,19 @@ namespace WebAppIdentity.Controllers
         }
 
 
-        [HttpGet]
-        public IActionResult ForgotPassword()
+        public async Task<IActionResult> Index(string email)
         {
-            return View();
+            var user = await userManager.FindByNameAsync(email);
+            if (user != null)
+            {
+                var userRoles = await userManager.GetRolesAsync(user);
+                ViewBag.Admin = userRoles.Contains("admin") ? true : false;
+
+                return View(user);
+            }
+            return RedirectToAction("Index", "Home");
         }
 
-        
         [HttpGet]
         public async Task<IActionResult> Edit(string id)
         {
@@ -134,10 +129,7 @@ namespace WebAppIdentity.Controllers
         }
 
         [HttpGet]
-        public IActionResult ChangePassword(string id)
-        {
-            return View(new ChangePasswordViewModel { Id = id});
-        }
+        public IActionResult ChangePassword(string id) => View(new ChangePasswordViewModel { Id = id });
 
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -161,6 +153,9 @@ namespace WebAppIdentity.Controllers
             return View(model);
         }
 
+        [HttpGet]
+        public IActionResult ForgotPassword() => View();
+
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> ForgotPassword(ForgotPasswordViewModel model)
@@ -183,7 +178,6 @@ namespace WebAppIdentity.Controllers
         {
             return code == null ? View("ForgotPassword") : View(new ResetPasswordViewModel() { Email = email});
         }
-
 
         [HttpPost]
         [ValidateAntiForgeryToken]

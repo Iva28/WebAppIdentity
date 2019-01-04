@@ -1,0 +1,20 @@
+﻿@model ChangeRoleViewModel
+
+@{
+    ViewData["Title"] = "Edit";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+
+<div class="container">
+    <h3>Edit</h3>
+    <form asp-action="Edit" method="post">
+        <input type="hidden" name="userId" value="@Model.UserId" />
+        <div class="form-group">
+            @foreach (IdentityRole role in Model.AllRoles){
+                <input type="checkbox" name="roles" value="@role.Name" checked="@Model.UserRoles.Contains(role.Name)"/>@role.Name <br />
+             }
+        </div>
+        <input type="submit" value="Save"/>
+    </form>
+</div>

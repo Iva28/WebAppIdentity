@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 namespace WebAppIdentity.Migrations
 {
-    public partial class Init : Migration
+    public partial class İnit : Migration
     {
         protected override void Up(MigrationBuilder migrationBuilder)
         {
