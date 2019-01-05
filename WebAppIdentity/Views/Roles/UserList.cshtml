@@ -6,17 +6,18 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    <h3>Users</h3>
-    <table class="table">
-        @foreach (var user in Model)
-        {
-            <tr>
-                <td>@user.Email</td>
-                <td>
-                    <a asp-action="Edit" asp-route-userid="@user.Id">Access rights</a>
-                </td>
-            </tr>
-        }
-    </table>
-</div>
+<h3>Users</h3>
+<table class="table">
+    @foreach (var user in Model)
+    {
+        <tr>
+            <td>@user.Email</td>
+            <td>
+                <div class="a"><a asp-action="Edit" asp-route-userid="@user.Id">Access rights</a></div>
+            </td>
+        </tr>
+    }
+</table>
+<br />
+<div class="a"><a asp-action="Index">Back to list</a></div>
+

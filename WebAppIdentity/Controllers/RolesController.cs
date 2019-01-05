@@ -19,7 +19,7 @@ namespace WebAppIdentity.Controllers
             this.userManager = userManager;
         }
 
-        public IActionResult Index() => View(roleManager.Roles.ToList());
+        public IActionResult Index() => View(roleManager.Roles.ToList().OrderBy(r => r.Name));
 
         public IActionResult Create() => View();
 
@@ -71,9 +71,9 @@ namespace WebAppIdentity.Controllers
                 };
                 return View(model);
             }
-
             return NotFound();
         }
+
         [HttpPost]
         public async Task<IActionResult> Edit(string userId, List<string> roles)
         {

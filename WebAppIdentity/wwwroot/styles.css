@@ -17,9 +17,9 @@ h4 {
     color: #7ed321;
 }
 
-input, input[type="radio"] + label,select option, select {
+input, input[type="radio"] + label, select option, select, .a {
     width: 100%;
-    padding: 1em;
+    padding: 10px;
     line-height: 1.4;
     background-color: #f9f9f9;
     border: 1px solid #e5e5e5;
@@ -31,10 +31,23 @@ input, input[type="radio"] + label,select option, select {
     transition: all 0.35s ease-in-out;
 }
 
-
-input[type="submit"] {
+input[type="submit"]{
     background-color: #7ed321;
     color: white;
+}
+
+.a {
+    background-color: #7ed321;
+    text-align: center;
+    padding: 10px;
+    margin-top:5px;
+}
+
+a {
+    text-decoration: none;
+    color: white;
+    font-size: 13px;
+    display: block;
 }
 
 input:focus {
@@ -213,5 +226,13 @@ h3{
     text-align: center;
 }
 
+input[type="checkbox"] {
+    vertical-align: middle;
+    width: 7%;
+}
+
+input:hover {
+    cursor:pointer;
+}
 
 /*https://www.w3schools.com/icons/fontawesome_icons_webapp.asp*/

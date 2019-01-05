@@ -129,7 +129,7 @@ namespace WebAppIdentity.Controllers
         }
 
         [HttpGet]
-        public IActionResult ChangePassword(string id) => View(new ChangePasswordViewModel { Id = id });
+        public IActionResult ChangePassword(string id, string email) => View(new ChangePasswordViewModel { Id = id, Email = email });
 
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)

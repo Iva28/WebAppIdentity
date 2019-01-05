@@ -4,21 +4,41 @@
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
 
-<div class="container">
-    @if (@Model != null)
+@if (@Model != null)
+{
+    <h3><i class="fa fa-user-circle-o"></i> Information about Account</h3>
+    <br />
+    <p>Name: @Model.FullName</p>
+    <p>BirthDate: @Model.BirthDate.ToString("d")</p>
+    <p>Gender: @Model.Gender</p>
+}
+
+<div class="a"><a asp-action="Edit" asp-route-id="@Model.Id">Edit</a></div>
+
+@{
+    var parms = new Dictionary<string, string>{
+            { "id", Model.Id },
+            { "email", Model.Email }
+    };
+}
+
+<div class="a"> <a asp-action="ChangePassword" asp-all-route-data=parms>Change Password</a></div>
+
+@if (ViewBag.Admin != null)
+{
+    @if (ViewBag.Admin)
     {
-        <h3><i class="fa fa-user-circle-o"></i> Information about Account</h3>
-        <br />
-        <p>Name: @Model.FullName</p>
-        <p>BirthDate: @Model.BirthDate.ToString("d")</p>
-        <p>Gender: @Model.Gender</p>
+        <div class="a"><a asp-action="Index" asp-controller="Roles">Roles</a></div>
     }
-    <input type="button" value="Edit" onclick="location.href='@Url.Action("Edit", "Account", new { Model.Id })'" />
-    <input type="button" value="Change Password" onclick="location.href='@Url.Action("ChangePassword", "Account", new { Model.Id })'" />
+}
+
+<div class="a"><a asp-action="SignOut">Sign Out</a></div>
+
+@*<input type="button" value="Edit" onclick="location.href='@Url.Action("Edit", "Account", new { Model.Id })'"/>
+    <input type="button" value="Change Password" onclick="location.href='@Url.Action("ChangePassword", "Account", new { Model.Id, Model.Email })'" />
     @if (ViewBag.Admin != null)  {
         @if (ViewBag.Admin) {
             <input type="button" value="Roles" onclick="location.href='@Url.Action("Index", "Roles")'" />
         }
     }
-    <input type="button" value="Sign Out" onclick="location.href='@Url.Action("SignOut", "Account")'" />
-</div>
+    <input type="button" value="Sign Out" onclick="location.href='@Url.Action("SignOut", "Account")'" />*@
