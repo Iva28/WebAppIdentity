@@ -5,8 +5,6 @@ namespace WebAppIdentity.ViewModels
 {
     public class EditUserViewModel
     {
-        public string Id { get; set; }
-
         [Required(ErrorMessage = "FullName is required.")]
         public string FullName { get; set; }
 

@@ -15,10 +15,4 @@ namespace WebAppIdentity.Models
         [Required]
         public DateTime BirthDate { get; set; }
     }
-
-    //public enum GenderEnum
-    //{
-    //    Male = 1,
-    //    Female = 2
-    //}
 }

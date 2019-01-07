@@ -13,20 +13,13 @@
     <p>Gender: @Model.Gender</p>
 }
 
-<div class="a"><a asp-action="Edit" asp-route-id="@Model.Id">Edit</a></div>
+<div class="a"><a asp-action="Edit">Edit</a></div>
 
-@{
-    var parms = new Dictionary<string, string>{
-            { "id", Model.Id },
-            { "email", Model.Email }
-    };
-}
+<div class="a"> <a asp-action="ChangePassword">Change Password</a></div>
 
-<div class="a"> <a asp-action="ChangePassword" asp-all-route-data=parms>Change Password</a></div>
-
-@if (ViewBag.Admin != null)
+@if (ViewBag.IsAdmin != null)
 {
-    @if (ViewBag.Admin)
+    @if (ViewBag.IsAdmin)
     {
         <div class="a"><a asp-action="Index" asp-controller="Roles">Roles</a></div>
     }

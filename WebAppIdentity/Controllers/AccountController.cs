@@ -4,8 +4,6 @@ using WebAppIdentity.Models;
 using WebAppIdentity.ViewModels;
 using System.Threading.Tasks;
 using System;
-using System.Linq;
-using WebAppIdentity.EF;
 using Microsoft.AspNetCore.Authorization;
 
 namespace WebAppIdentity.Controllers
@@ -22,7 +20,7 @@ namespace WebAppIdentity.Controllers
         }
 
         [HttpGet]
-        public IActionResult SignUp() => View(new SignUpViewModel());
+        public IActionResult SignUp() => View(new SignUpViewModel { BirthDate = DateTime.Now});
 
         [HttpPost]
         public async Task<IActionResult> SignUp(SignUpViewModel model)
@@ -35,7 +33,6 @@ namespace WebAppIdentity.Controllers
                 Gender = model.Gender,
                 BirthDate = model.BirthDate
             };
-
 
             IdentityResult res = await userManager.CreateAsync(user, model.Password);
             if (res.Succeeded) {
@@ -74,52 +71,51 @@ namespace WebAppIdentity.Controllers
         public async Task<IActionResult> SignIn(SignInViewModel model)
         {
             var user = await userManager.FindByNameAsync(model.Email);
-
             var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, false, false);
-
             if (!result.Succeeded) {
                 ModelState.AddModelError("SignInError", "Invalid login or password.Please try again.");
                 return View();
             }
-            return RedirectToAction("Index", "Account", new { model.Email });
+            return RedirectToAction("Index", "Account");
         }
 
-
-        public async Task<IActionResult> Index(string email)
+        [Authorize]
+        public async Task<IActionResult> Index()
         {
-            var user = await userManager.FindByNameAsync(email);
-            if (user != null)
-            {
-                var userRoles = await userManager.GetRolesAsync(user);
-                ViewBag.Admin = userRoles.Contains("admin") ? true : false;
-
-                return View(user);
-            }
+                var user = await userManager.FindByNameAsync(HttpContext.User.Identity.Name);
+                if (user != null) {
+                    var userRoles = await userManager.GetRolesAsync(user);
+                    ViewBag.IsAdmin = userRoles.Contains("admin") ? true : false;
+                    return View(user);
+                }
             return RedirectToAction("Index", "Home");
         }
 
+        [Authorize]
         [HttpGet]
-        public async Task<IActionResult> Edit(string id)
+        public async Task<IActionResult> Edit()
         {
-            User user = await userManager.FindByIdAsync(id);
+            var userId = userManager.GetUserId(HttpContext.User);
+            User user = await userManager.FindByIdAsync(userId);
             if (user == null)
                 return NotFound();
-            return View(new EditUserViewModel { Id = user.Id, FullName = user.FullName ,BirthDate = user.BirthDate, Gender = user.Gender });
+            return View(new EditUserViewModel { FullName = user.FullName ,BirthDate = user.BirthDate, Gender = user.Gender });
         }
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> Edit(EditUserViewModel model)
         {
-            User user = await userManager.FindByIdAsync(model.Id);
+            var userId = userManager.GetUserId(HttpContext.User);
+            User user = await userManager.FindByIdAsync(userId);
             if (user != null) {
                 user.FullName = model.FullName;
                 user.BirthDate = model.BirthDate;
                 user.Gender = model.Gender;
 
                 var result = await userManager.UpdateAsync(user);
-                if (result.Succeeded)
-                {
-                    return RedirectToAction("Index", "Account", new { user.Email });
+                if (result.Succeeded) {
+                    return RedirectToAction("Index", "Account");
                 }
                 else {
                     return View(model);
@@ -128,27 +124,27 @@ namespace WebAppIdentity.Controllers
             return View(model);
         }
 
+        [Authorize]
         [HttpGet]
-        public IActionResult ChangePassword(string id, string email) => View(new ChangePasswordViewModel { Id = id, Email = email });
+        public IActionResult ChangePassword() => View(new ChangePasswordViewModel());
 
+        [Authorize]
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
         {
-            User user = await userManager.FindByIdAsync(model.Id);
+            var userId = userManager.GetUserId(HttpContext.User);
+            User user = await userManager.FindByIdAsync(userId);
             if (user != null) {
                 IdentityResult result = await userManager.ChangePasswordAsync(user, model.OldPassword, model.NewPassword);
                 if (result.Succeeded) {
-                    return RedirectToAction("Index", "Account", new { user.Email });
-
+                    return RedirectToAction("Index", "Account");
                 }
                 else {
                     foreach (var error in result.Errors) {
                         ModelState.AddModelError("ChangePasswordError", error.Description);
                     }
+                    return View(model);
                 }
-            }
-            else {
-                ModelState.AddModelError(string.Empty, "Not Found");
             }
             return View(model);
         }
@@ -169,7 +165,6 @@ namespace WebAppIdentity.Controllers
             var code = await userManager.GeneratePasswordResetTokenAsync(user);
             var callbackUrl = Url.Action("ResetPassword", "Account", new { user.Email, code },
                 protocol: HttpContext.Request.Scheme);
-
             return View("ForgotPasswordConfirmation", callbackUrl);
         }
 
@@ -195,6 +190,7 @@ namespace WebAppIdentity.Controllers
             return View();
         }
 
+        [Authorize]
         [HttpGet]
         public async Task<IActionResult> SignOut()
         {

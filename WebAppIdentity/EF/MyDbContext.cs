@@ -15,8 +15,6 @@ namespace WebAppIdentity.EF
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
-            //modelBuilder.Entity<User>().Property(u => u.Gender).HasDefaultValue(GenderEnum.Undefined);
-
             //modelBuilder.Entity<IdentityRole>().HasData(
             //    new IdentityRole { Name = "Admin", NormalizedName = "Admin".ToUpper() });
             //modelBuilder.Entity<IdentityRole>().HasData(

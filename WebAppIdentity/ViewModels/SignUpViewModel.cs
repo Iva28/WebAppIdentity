@@ -22,7 +22,6 @@ namespace WebAppIdentity.ViewModels
         [Compare("Password", ErrorMessage = "The password and confirmation password do not match.")]
         public string ConfirmPassword { get; set; }
 
-        [Required(ErrorMessage = "Gender is required.")]
         public string Gender { get; set; }
 
         [Required(ErrorMessage = "BirthDate is required.")]

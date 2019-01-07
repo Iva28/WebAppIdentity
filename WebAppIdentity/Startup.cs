@@ -63,8 +63,9 @@ namespace WebAppIdentity
 
             app.UseAuthentication();
 
-            app.UseMvc(routes => {
-                routes.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
+            app.UseMvc(routeBuilder => {
+
+                routeBuilder.MapRoute("default", "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

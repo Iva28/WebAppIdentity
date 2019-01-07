@@ -7,10 +7,7 @@
 
 @if (ViewData["ResetPassword"] != null) {
     if ((bool)ViewData["ResetPassword"]) {
-<p>
-    <i class="fa fa-check-circle-o"></i>
-    Your password has been reset.
-</p>
+        <p><i class="fa fa-check-circle-o"></i>Your password has been reset.</p>
     }
 }
 <form method="post" asp-controller="Account" asp-action="SignIn">
@@ -32,7 +29,6 @@
             @Html.ValidationMessage("SignInError")
             <input type="submit" value="Sign In" />
             <div class="a"><a asp-action="ForgotPassword">Forgot your password?</a></div>
-            @*<input type="button" value="Forgot your password?" onclick="location.href='@Url.Action("ForgotPassword", "Account")'" />*@
         </div>
     </div>
 </form>

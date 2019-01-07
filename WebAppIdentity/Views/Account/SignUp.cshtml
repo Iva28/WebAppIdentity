@@ -30,16 +30,14 @@
     <div class="row">
         <div>
             <h4>Date of Birth</h4>
-             @*<span asp-validation-for="BirthDate"></span>*@
             <div class="input-group">
                 <input asp-for="BirthDate" />
             </div>
         </div>
         <div>
             <h4>Gender</h4>
-            @*<span asp-validation-for="Gender"></span>*@
             <div class="input-group">
-                <input type="radio" asp-for="Gender" value="male" id="gender-male" />
+                <input type="radio" asp-for="Gender" value="male" id="gender-male" checked />
                 <label for="gender-male">Male</label>
                 <input type="radio" asp-for="Gender" value="female" id="gender-female" />
                 <label for="gender-female">Female</label>
