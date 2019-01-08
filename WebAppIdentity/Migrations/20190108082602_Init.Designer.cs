@@ -10,8 +10,8 @@ using WebAppIdentity.EF;
 namespace WebAppIdentity.Migrations
 {
     [DbContext(typeof(MyDbContext))]
-    [Migration("20190104123053_İnit")]
-    partial class İnit
+    [Migration("20190108082602_Init")]
+    partial class Init
     {
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
